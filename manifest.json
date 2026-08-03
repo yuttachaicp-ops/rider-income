@@ -1,0 +1,26 @@
+{
+  "name": "บันทึกรายรับ ไรเดอร์",
+  "short_name": "รายรับ",
+  "description": "บันทึกรายรับ-รายจ่าย GrabFood / ShopeeFood คิดกำไรสุทธิและบาทต่อชั่วโมง ใช้งานออฟไลน์",
+  "lang": "th",
+  "start_url": "./",
+  "scope": "./",
+  "id": "rider-income",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait",
+  "background_color": "#f4f4f2",
+  "theme_color": "#0b0b0c",
+  "categories": ["finance", "productivity"],
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "บันทึกรอบส่ง", "short_name": "รายรับ", "url": "./?tab=add" },
+    { "name": "บันทึกรายจ่าย", "short_name": "รายจ่าย", "url": "./?tab=exp" },
+    { "name": "ดูสรุป", "short_name": "สรุป", "url": "./?tab=sum" }
+  ]
+}
