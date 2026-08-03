@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b0b0c">
+<meta name="theme-color" content="#0a0a0b" id="metaTheme">
+<script>(function(){try{var t=localStorage.getItem("theme")||"auto";var h=new Date().getHours();var r=t==="auto"?((h>=6&&h<18)?"day":"night"):t;document.documentElement.dataset.theme=r;}catch(e){document.documentElement.dataset.theme="night";}})();</script>
 <title>บันทึกรายรับ ไรเดอร์ส่งอาหาร</title>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="favicon.png" sizes="64x64" type="image/png">
@@ -14,60 +15,76 @@
 <meta name="apple-mobile-web-app-title" content="รายรับ">
 <meta name="description" content="บันทึกรายรับ-รายจ่าย GrabFood / ShopeeFood คิดกำไรสุทธิและบาทต่อชั่วโมง ใช้งานออฟไลน์">
 <style>
-  :root{
-    --bg:#f4f4f2; --card:#0b0b0c; --card2:#16161a; --line:#26262c;
-    --txt:#0b0b0c; --muted:#8a8a94; --inv:#ffffff;
-    --grab:#00b14f; --shopee:#ee4d2d; --exp:#f5b400; --net:#4da3ff;
-    --r:18px;
+  :root{ --r:18px; }
+  html[data-theme="day"]{
+    --bg:#ffffff; --card:#ffffff; --cardBorder:#dcdcd4; --card2:#f1f1ec; --line:#c9c9c0;
+    --ink:#000000; --muted:#4a4a48; --btn:#000000; --btnTxt:#ffffff;
+    --navOn:#000000; --navOnTxt:#ffffff; --navOff:#4a4a48; --tline:#e3e3dd; --dotDim:#9a9a92;
+    --grab:#00803a; --shopee:#c2350f; --exp:#8a5b00; --neg:#c2200f;
+  }
+  html[data-theme="night"]{
+    --bg:#0a0a0b; --card:#15151a; --cardBorder:#202027; --card2:#1f1f26; --line:#2e2e37;
+    --ink:#e8e8ec; --muted:#7c7c88; --btn:#2c2c35; --btnTxt:#eaeaef;
+    --navOn:#2c2c35; --navOnTxt:#eaeaef; --navOff:#7c7c88; --tline:#26262d; --dotDim:#4a4a55;
+    --grab:#12a04c; --shopee:#d1492b; --exp:#c79300; --neg:#e05a45;
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{margin:0;padding:0}
+  html{background:var(--bg)}
   body{
-    background:var(--bg); color:var(--txt);
+    background:var(--bg); color:var(--ink);
     font-family:"Noto Sans Thai","Sarabun",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     font-size:15px; line-height:1.5;
     padding:18px 14px 110px; max-width:760px; margin:0 auto;
+    -webkit-text-size-adjust:100%;
   }
+  .head{display:flex;align-items:flex-start;gap:10px;margin-bottom:18px}
+  .head .tt{flex:1;min-width:0}
   h1{font-size:20px;margin:0 0 2px;letter-spacing:-.3px}
-  .sub{color:var(--muted);font-size:13px;margin:0 0 18px}
-  .card{background:var(--card);color:var(--inv);border-radius:var(--r);padding:16px;margin-bottom:12px}
-  .card.light{background:#fff;color:var(--txt);border:1px solid #e5e5e2}
+  .sub{color:var(--muted);font-size:13px;margin:0}
+  #themeBtn{background:var(--card);color:var(--muted);border:1px solid var(--line);
+    border-radius:99px;padding:8px 13px;font:inherit;font-size:12.5px;cursor:pointer;white-space:nowrap}
+  .card{background:var(--card);border:1px solid var(--cardBorder);color:var(--ink);
+    border-radius:var(--r);padding:16px;margin-bottom:12px}
+  .card.light{background:var(--card);color:var(--ink)}
   .lbl{color:var(--muted);font-size:12px;margin:0 0 8px;letter-spacing:.02em}
   .row{display:flex;gap:10px}
   .row>*{flex:1;min-width:0}
-  nav{position:fixed;left:0;right:0;bottom:0;background:rgba(244,244,242,.94);backdrop-filter:blur(10px);
-      border-top:1px solid #e2e2df;display:flex;padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:6px;z-index:20}
-  nav button{flex:1;background:none;border:0;padding:10px 2px;border-radius:12px;font:inherit;font-size:12.5px;color:#6b6b73;cursor:pointer}
-  nav button.on{background:var(--card);color:#fff;font-weight:600}
+  nav{position:fixed;left:0;right:0;bottom:0;background:var(--bg);
+      border-top:1px solid var(--cardBorder);display:flex;
+      padding:8px 10px calc(8px + env(safe-area-inset-bottom));gap:6px;z-index:20}
+  nav button{flex:1;background:none;border:0;padding:10px 2px;border-radius:12px;
+    font:inherit;font-size:12.5px;color:var(--navOff);cursor:pointer}
+  nav button.on{background:var(--navOn);color:var(--navOnTxt);font-weight:600}
   section{display:none} section.on{display:block}
   .plat,.cats{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
-  .plat button{flex:1;border:2px solid var(--line);background:var(--card2);color:#cfcfd6;
+  .plat button{flex:1;border:2px solid var(--line);background:var(--card2);color:var(--muted);
     border-radius:14px;padding:14px 8px;font:inherit;font-weight:700;cursor:pointer;transition:.15s}
   .plat button .d{display:block;width:9px;height:9px;border-radius:50%;margin:0 auto 7px}
   .plat button[data-p="grab"] .d{background:var(--grab)}
   .plat button[data-p="shopee"] .d{background:var(--shopee)}
-  .plat button.on[data-p="grab"]{border-color:var(--grab);background:rgba(0,177,79,.14);color:#fff}
-  .plat button.on[data-p="shopee"]{border-color:var(--shopee);background:rgba(238,77,45,.14);color:#fff}
-  .cats button{border:1px solid var(--line);background:var(--card2);color:#cfcfd6;border-radius:99px;
-    padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
-  .cats button.on{background:#fff;color:#0b0b0c;border-color:#fff;font-weight:600}
+  .plat button.on[data-p="grab"]{border-color:var(--grab);background:rgba(0,177,79,.16);color:var(--ink)}
+  .plat button.on[data-p="shopee"]{border-color:var(--shopee);background:rgba(238,77,45,.16);color:var(--ink)}
+  .cats button{border:1px solid var(--line);background:var(--card2);color:var(--muted);
+    border-radius:99px;padding:8px 13px;font:inherit;font-size:13px;cursor:pointer}
+  .cats button.on{background:var(--btn);color:var(--btnTxt);border-color:var(--btn);font-weight:600}
   .f{margin-bottom:12px}
   .f>span{display:block;color:var(--muted);font-size:12px;margin-bottom:5px}
   input,select,textarea{
-    width:100%;background:var(--card2);border:1px solid var(--line);color:#fff;
+    width:100%;background:var(--card2);border:1px solid var(--line);color:var(--ink);
     border-radius:12px;padding:12px 13px;font:inherit;font-size:16px;outline:none}
-  input:focus,select:focus,textarea:focus{border-color:#4a4a55}
-  .light input,.light select{background:#fafaf8;border-color:#e0e0dc;color:var(--txt)}
+  input:focus,select:focus,textarea:focus{border-color:var(--ink)}
   textarea{min-height:56px;resize:vertical;font-size:15px}
   .big{font-size:22px!important;font-weight:700;letter-spacing:-.5px}
-  .btn{width:100%;background:#fff;color:#0b0b0c;border:0;border-radius:14px;padding:15px;
+  .btn{width:100%;background:var(--btn);color:var(--btnTxt);border:0;border-radius:14px;padding:15px;
        font:inherit;font-size:16px;font-weight:700;cursor:pointer;margin-top:4px}
   .btn:active{transform:scale(.99)}
-  .btn.ghost{background:transparent;color:#cfcfd6;border:1px solid var(--line);font-weight:500;font-size:14px;padding:11px}
-  .btn.dark{background:var(--card);color:#fff}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--line);
+    font-weight:500;font-size:14px;padding:11px}
+  .btn.dark{background:var(--btn);color:var(--btnTxt)}
   .btn.sm{width:auto;padding:10px 12px;font-size:13px;margin:0}
   .btn.go{background:var(--grab);color:#fff}
-  .btn.stop{background:#ee4d2d;color:#fff}
+  .btn.stop{background:var(--shopee);color:#fff}
   .kpi{font-size:34px;font-weight:800;letter-spacing:-1.2px;margin:2px 0 0}
   .kpi small{font-size:15px;font-weight:600;color:var(--muted);letter-spacing:0;margin-left:3px}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
@@ -75,49 +92,51 @@
   .mini{background:var(--card2);border-radius:14px;padding:12px}
   .mini .n{font-size:19px;font-weight:700;letter-spacing:-.5px;margin-top:2px}
   .mini .t{font-size:11px;color:var(--muted)}
-  .bar{height:8px;border-radius:99px;background:#26262c;overflow:hidden;display:flex;margin-top:12px}
+  .bar{height:8px;border-radius:99px;background:var(--card2);overflow:hidden;display:flex;margin-top:12px}
   .bar i{display:block;height:100%}
   .goal{margin-top:14px}
   .goal .top{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px}
-  .goal .top b{color:#fff;font-weight:600}
-  .goal .track{height:12px;border-radius:99px;background:#26262c;overflow:hidden}
-  .goal .track i{display:block;height:100%;background:linear-gradient(90deg,#00b14f,#7ee08f);border-radius:99px;transition:width .35s}
-  .goal.done .track i{background:linear-gradient(90deg,#f5b400,#ffd964)}
+  .goal .top b{color:var(--ink);font-weight:600}
+  .goal .track{height:12px;border-radius:99px;background:var(--card2);overflow:hidden}
+  .goal .track i{display:block;height:100%;background:var(--grab);border-radius:99px;transition:width .35s}
+  .goal.done .track i{background:var(--exp)}
   .lg{display:flex;gap:14px;font-size:12px;color:var(--muted);margin-top:9px;flex-wrap:wrap}
-  .lg b{color:#fff;font-weight:600}
+  .lg b{color:var(--ink);font-weight:600}
   .lg u{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;text-decoration:none}
   canvas{width:100%;height:170px;display:block}
-  .timer{font-size:40px;font-weight:800;letter-spacing:-1.5px;font-variant-numeric:tabular-nums;margin:2px 0 10px}
-  .item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #ededea;cursor:pointer}
-  .card:not(.light) .item{border-bottom-color:#26262c}
+  .timer{font-size:40px;font-weight:800;letter-spacing:-1.5px;color:var(--ink);
+    font-variant-numeric:tabular-nums;margin:2px 0 10px}
+  .item{display:flex;align-items:center;gap:12px;padding:12px 0;
+    border-bottom:1px solid var(--tline);cursor:pointer}
   .item:last-child{border-bottom:0}
   .item .dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
   .item .m{flex:1;min-width:0}
   .item .m b{font-weight:600;font-size:14px}
-  .item .m span{display:block;color:#8a8a94;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .item .m span{display:block;color:var(--muted);font-size:12px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .item .v{font-weight:700;font-size:16px;letter-spacing:-.3px}
   .empty{color:var(--muted);font-size:13px;text-align:center;padding:24px 0}
   .chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;margin-bottom:12px;scrollbar-width:none}
   .chips::-webkit-scrollbar{display:none}
-  .chips button{white-space:nowrap;border:1px solid #e0e0dc;background:#fff;color:#54545c;
+  .chips button{white-space:nowrap;border:1px solid var(--line);background:var(--card);color:var(--muted);
      border-radius:99px;padding:7px 13px;font:inherit;font-size:13px;cursor:pointer}
-  .chips button.on{background:var(--card);color:#fff;border-color:var(--card);font-weight:600}
+  .chips button.on{background:var(--navOn);color:var(--navOnTxt);border-color:var(--navOn);font-weight:600}
   .foot{color:var(--muted);font-size:11.5px;text-align:center;margin-top:16px;line-height:1.7}
-  dialog{border:0;border-radius:20px;padding:0;background:var(--card);color:#fff;width:min(94vw,420px)}
-  dialog::backdrop{background:rgba(0,0,0,.5)}
+  dialog{border:0;border-radius:20px;padding:0;background:var(--card);color:var(--ink);width:min(94vw,420px)}
+  dialog::backdrop{background:rgba(0,0,0,.55)}
   .dlg{padding:18px}
   .toast{position:fixed;left:50%;bottom:88px;transform:translateX(-50%) translateY(20px);
-    background:#0b0b0c;color:#fff;padding:11px 18px;border-radius:99px;font-size:13.5px;
+    background:var(--navOn);color:var(--navOnTxt);padding:11px 18px;border-radius:99px;font-size:13.5px;
     opacity:0;pointer-events:none;transition:.25s;z-index:50;max-width:88vw;text-align:center}
   .toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
   table{width:100%;border-collapse:collapse;font-size:12.5px}
-  th,td{text-align:right;padding:8px 3px;border-bottom:1px solid #ededea;white-space:nowrap}
-  th{color:#8a8a94;font-weight:500;font-size:11.5px}
+  th,td{text-align:right;padding:8px 3px;border-bottom:1px solid var(--tline);white-space:nowrap}
+  th{color:var(--muted);font-weight:500;font-size:11.5px}
   th:first-child,td:first-child{text-align:left}
-  .neg{color:#e0402c}
+  .neg{color:var(--neg)}
   .tw{overflow-x:auto}
-  .install{display:none;align-items:center;gap:12px;background:var(--card);color:#fff;
-    border-radius:16px;padding:13px 14px;margin-bottom:14px}
+  .install{display:none;align-items:center;gap:12px;background:var(--card);color:var(--ink);
+    border:1px solid var(--cardBorder);border-radius:16px;padding:13px 14px;margin-bottom:14px}
   .install.on{display:flex}
   .install img{width:38px;height:38px;border-radius:9px;flex:0 0 auto}
   .install .m{flex:1;min-width:0;font-size:13px;line-height:1.35}
@@ -132,12 +151,17 @@
 <div class="install" id="installBar">
   <img src="icon-192.png" alt="">
   <div class="m"><b id="inst-title">ติดตั้งเป็นแอพบนมือถือ</b><span id="inst-desc">เปิดใช้ได้แม้ไม่มีเน็ต</span></div>
-  <button class="btn sm" id="inst-btn" style="background:#fff;color:#0b0b0c">ติดตั้ง</button>
+  <button class="btn sm" id="inst-btn">ติดตั้ง</button>
   <button class="x" id="inst-x" aria-label="ปิด">×</button>
 </div>
 
-<h1>บันทึกรายรับ ไรเดอร์</h1>
-<p class="sub">GrabFood · ShopeeFood — รายรับ · รายจ่าย · กำไรสุทธิ · บาท/ชม.</p>
+<div class="head">
+  <div class="tt">
+    <h1>บันทึกรายรับ ไรเดอร์</h1>
+    <p class="sub">GrabFood · ShopeeFood — กำไรสุทธิ · บาท/ชม.</p>
+  </div>
+  <button id="themeBtn" aria-label="สลับธีม">ธีม</button>
+</div>
 
 <!-- ================= บันทึกรายรับ ================= -->
 <section id="s-add" class="on">
@@ -192,7 +216,7 @@
     <div class="lg">
       <span><u style="background:var(--grab)"></u>Grab <b id="t-grab">0</b></span>
       <span><u style="background:var(--shopee)"></u>Shopee <b id="t-shopee">0</b></span>
-      <span><u style="background:#5a5a66"></u>รอบ <b id="t-cnt">0</b></span>
+      <span><u style="background:var(--dotDim)"></u>รอบ <b id="t-cnt">0</b></span>
     </div>
   </div>
 </section>
@@ -218,7 +242,7 @@
   </div>
 
   <div class="card light">
-    <p class="lbl" style="color:#8a8a94">รายจ่าย 30 วันล่าสุด</p>
+    <p class="lbl">รายจ่าย 30 วันล่าสุด</p>
     <div id="x-list"></div>
   </div>
 
@@ -292,7 +316,7 @@
   </div>
 
   <div class="card light">
-    <p class="lbl" style="color:#8a8a94">สรุปรายวัน (30 วัน)</p>
+    <p class="lbl">สรุปรายวัน (30 วัน)</p>
     <div class="tw"><table id="tbl">
       <thead><tr><th>วันที่</th><th>รอบ</th><th>รับ</th><th>จ่าย</th><th>ชม.</th><th>สุทธิ</th><th>/ชม.</th></tr></thead>
       <tbody></tbody></table></div>
@@ -308,6 +332,12 @@
       <select id="set-basis"><option value="net">กำไรสุทธิ (หลังหักรายจ่าย)</option><option value="gross">รายรับ (ก่อนหักรายจ่าย)</option></select>
     </label>
     <button class="btn ghost" id="set-save">บันทึกเป้าหมาย</button>
+    <p class="lbl" style="margin:18px 0 8px">ธีมหน้าจอ</p>
+    <div class="chips" id="themeChips" style="margin-bottom:0">
+      <button data-t="auto">อัตโนมัติตามเวลา</button>
+      <button data-t="day">กลางแดด</button>
+      <button data-t="night">กลางคืน</button>
+    </div>
   </div>
 </section>
 
@@ -322,7 +352,7 @@
 
 <dialog id="dlg"><div class="dlg">
   <p class="lbl">แก้ไขรอบส่ง</p>
-  <div id="dlg-info" style="font-size:13px;color:#cfcfd6;margin-bottom:14px"></div>
+  <div id="dlg-info" style="font-size:13px;color:var(--muted);margin-bottom:14px"></div>
   <div class="row">
     <label class="f"><span>ค่ารอบ</span><input type="number" id="e-fare" step="0.01"></label>
     <label class="f"><span>ทิป</span><input type="number" id="e-tip" step="0.01"></label>
@@ -338,7 +368,7 @@
 
 <dialog id="dlgX"><div class="dlg">
   <p class="lbl">แก้ไขรายจ่าย</p>
-  <div id="dlgX-info" style="font-size:13px;color:#cfcfd6;margin-bottom:14px"></div>
+  <div id="dlgX-info" style="font-size:13px;color:var(--muted);margin-bottom:14px"></div>
   <div class="row">
     <label class="f"><span>จำนวนเงิน</span><input type="number" id="ex-amt" step="0.01"></label>
     <label class="f"><span>หมวด</span><select id="ex-cat"></select></label>
@@ -374,7 +404,9 @@ const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0;};
 const money=n=>n.toLocaleString('th-TH',{minimumFractionDigits:2,maximumFractionDigits:2});
 const money0=n=>Math.round(n).toLocaleString('th-TH');
-const PL={grab:{name:'GrabFood',color:'#00b14f'},shopee:{name:'ShopeeFood',color:'#ee4d2d'}};
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const PL={grab:{name:'GrabFood',get color(){return cssv('--grab');}},
+          shopee:{name:'ShopeeFood',get color(){return cssv('--shopee');}}};
 const CATS=[
   {k:'fuel',n:'น้ำมัน',c:'#f5b400'},{k:'rent',n:'ค่าเช่ารถ',c:'#ff7a45'},
   {k:'fix',n:'ซ่อม/บำรุง',c:'#a06cff'},{k:'phone',n:'โทรศัพท์/เน็ต',c:'#4da3ff'},
@@ -629,7 +661,7 @@ function render(){
   const sbox=$('#sh-list');sbox.innerHTML=slist.length?'':'<div class="empty">ยังไม่มีกะทำงาน</div>';
   for(const s of slist){
     const h=shiftMs(s)/3600000,d=document.createElement('div');d.className='item';
-    d.innerHTML='<i class="dot" style="background:'+(s.endTs?'#5a5a66':'#00b14f')+'"></i>'+
+    d.innerHTML='<i class="dot" style="background:'+(s.endTs?cssv('--dotDim'):cssv('--grab'))+'"></i>'+
       '<div class="m"><b>'+thDate(s.date)+'</b><span>'+(s.start||'—')+' – '+(s.end||'กำลังทำงาน')+'</span></div>'+
       '<div class="v">'+(s.endTs?hText(h):clock(Date.now()-s.startTs))+'</div>';
     d.addEventListener('click',()=>openEditS(s));sbox.appendChild(d);
@@ -673,7 +705,7 @@ function render(){
 
   const rows=dayRows(ENTRIES,EXP,SHIFTS,iso(addDays(now,-29)),T);
   const tb=$('#tbl tbody');tb.innerHTML='';
-  if(!rows.length)tb.innerHTML='<tr><td colspan="7" style="color:#8a8a94;text-align:center;padding:18px">ไม่มีข้อมูล</td></tr>';
+  if(!rows.length)tb.innerHTML='<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:18px">ไม่มีข้อมูล</td></tr>';
   for(const d of rows){
     const tr=document.createElement('tr');
     tr.innerHTML='<td>'+thDate(d.date)+'</td><td>'+d.count+'</td><td>'+money0(d.gross)+'</td>'+
@@ -702,13 +734,13 @@ function drawChart(){
   ctx.font='500 11px system-ui,sans-serif';
   days.forEach((d,i)=>{
     const x=pad+bw*i+(bw-w)/2,gh=d.grab/max*bh,sh=d.shopee/max*bh;let y=bh+6;
-    if(d.total===0){ctx.fillStyle='#26262c';ctx.fillRect(x,bh+2,w,4);}
+    if(d.total===0){ctx.fillStyle=cssv('--card2');ctx.fillRect(x,bh+2,w,4);}
     ctx.fillStyle=PL.shopee.color;rr(x,y-sh,w,sh,6);y-=sh;
     ctx.fillStyle=PL.grab.color;rr(x,y-gh,w,gh,6);
-    if(d.exp>0){const ey=bh+6-d.exp/max*bh;ctx.fillStyle='#f5b400';
+    if(d.exp>0){const ey=bh+6-d.exp/max*bh;ctx.fillStyle=cssv('--exp');
       ctx.fillRect(x-3,ey-1.5,w+6,3);}
-    ctx.fillStyle='#8a8a94';ctx.textAlign='center';ctx.fillText(DOW[d.d.getDay()],x+w/2,H-8);
-    if(d.total>0){ctx.fillStyle='#fff';ctx.font='700 10.5px system-ui,sans-serif';
+    ctx.fillStyle=cssv('--muted');ctx.textAlign='center';ctx.fillText(DOW[d.d.getDay()],x+w/2,H-8);
+    if(d.total>0){ctx.fillStyle=cssv('--ink');ctx.font='700 10.5px system-ui,sans-serif';
       ctx.fillText(money0(d.total),x+w/2,Math.max(10,bh+2-sh-gh-4));ctx.font='500 11px system-ui,sans-serif';}
   });
 }
@@ -784,6 +816,35 @@ $('#file-json').addEventListener('change',async ev=>{
   }catch(_){toast('ไฟล์ไม่ถูกต้อง');}
   ev.target.value='';
 });
+
+/* ================= ธีม: กลางแดด / กลางคืน / อัตโนมัติ ================= */
+const THEME_NAME={auto:'อัตโนมัติ',day:'กลางแดด',night:'กลางคืน'};
+const getPref=()=>{try{return localStorage.getItem('theme')||'auto';}catch(_){return 'auto';}};
+const resolveTheme=p=>{if(p==='day'||p==='night')return p;
+  const hh=new Date().getHours();return (hh>=6&&hh<18)?'day':'night';};
+function applyTheme(){
+  const p=getPref(),r=resolveTheme(p);
+  document.documentElement.dataset.theme=r;
+  const mt=document.getElementById('metaTheme');
+  if(mt)mt.setAttribute('content',r==='day'?'#ffffff':'#0a0a0b');
+  const b=$('#themeBtn');
+  if(b)b.textContent=(r==='day'?'☀ ':'☾ ')+THEME_NAME[p];
+  $$('#themeChips button').forEach(x=>x.classList.toggle('on',x.dataset.t===p));
+  if($('#s-sum').classList.contains('on'))drawChart();
+}
+function setTheme(p){try{localStorage.setItem('theme',p);}catch(_){}
+  applyTheme();toast('ธีม: '+THEME_NAME[p]+(p==='auto'?' ('+THEME_NAME[resolveTheme(p)]+' ตอนนี้)':''));}
+$('#themeBtn').addEventListener('click',()=>{
+  const order=['auto','day','night'],p=getPref();
+  setTheme(order[(order.indexOf(p)+1)%3]);
+});
+$('#themeChips').addEventListener('click',e=>{
+  const b=e.target.closest('button[data-t]');if(b)setTheme(b.dataset.t);
+});
+setInterval(()=>{if(getPref()==='auto'&&
+  document.documentElement.dataset.theme!==resolveTheme('auto'))applyTheme();},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&getPref()==='auto')applyTheme();});
+applyTheme();
 
 /* ================= PWA: ติดตั้ง + ออฟไลน์ ================= */
 const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
