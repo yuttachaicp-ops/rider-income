@@ -144,6 +144,18 @@
   .install .m span{color:var(--muted);font-size:12px}
   .install .x{background:none;border:0;color:var(--muted);font-size:20px;cursor:pointer;padding:0 2px;width:auto}
   body.standalone{padding-top:max(18px,env(safe-area-inset-top))}
+  .update{display:none;align-items:center;gap:12px;background:var(--grab);color:#fff;
+    border-radius:16px;padding:13px 14px;margin-bottom:14px}
+  .update.on{display:flex}
+  .update .m{flex:1;min-width:0;font-size:13px;line-height:1.35}
+  .update .m b{display:block;font-size:14px}
+  .update .m span{color:rgba(255,255,255,.82);font-size:12px}
+  .update button{background:#fff;color:#0a5c2e;border:0;border-radius:11px;padding:11px 15px;
+    font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap;width:auto}
+  .update button:disabled{opacity:.65}
+  .verrow{display:flex;gap:10px;align-items:stretch}
+  .verrow .mini{flex:1}
+  .verrow button{flex:1;margin:0}
 </style>
 </head>
 <body>
@@ -153,6 +165,11 @@
   <div class="m"><b id="inst-title">ติดตั้งเป็นแอพบนมือถือ</b><span id="inst-desc">เปิดใช้ได้แม้ไม่มีเน็ต</span></div>
   <button class="btn sm" id="inst-btn">ติดตั้ง</button>
   <button class="x" id="inst-x" aria-label="ปิด">×</button>
+</div>
+
+<div class="update" id="updBar">
+  <div class="m"><b>มีเวอร์ชันใหม่พร้อมใช้</b><span>กดอัปเดตแล้วแอพจะโหลดใหม่ ข้อมูลไม่หาย</span></div>
+  <button id="upd-btn">อัปเดตเลย</button>
 </div>
 
 <div class="head">
@@ -332,6 +349,11 @@
       <select id="set-basis"><option value="net">กำไรสุทธิ (หลังหักรายจ่าย)</option><option value="gross">รายรับ (ก่อนหักรายจ่าย)</option></select>
     </label>
     <button class="btn ghost" id="set-save">บันทึกเป้าหมาย</button>
+    <p class="lbl" style="margin:18px 0 8px">เวอร์ชันแอพ</p>
+    <div class="verrow">
+      <div class="mini"><div class="t">ที่ใช้อยู่</div><div class="n" id="verNow" style="font-size:16px">–</div></div>
+      <button class="btn ghost" id="chkBtn">ตรวจหาอัปเดต</button>
+    </div>
     <p class="lbl" style="margin:18px 0 8px">ธีมหน้าจอ</p>
     <div class="chips" id="themeChips" style="margin-bottom:0">
       <button data-t="auto">อัตโนมัติตามเวลา</button>
@@ -850,24 +872,77 @@ applyTheme();
 const standalone=matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
 if(standalone)document.body.classList.add('standalone');
 
-/* Service Worker */
-if('serviceWorker' in navigator&&location.protocol!=='file:'){
+/* Service Worker + ระบบอัปเดตในแอพ */
+let SWREG=null,WAITING=null,CHECKING=false;
+const supported='serviceWorker' in navigator&&location.protocol!=='file:';
+
+function showUpdate(w){
+  WAITING=w;
+  const b=$('#upd-btn');b.disabled=false;b.textContent='อัปเดตเลย';
+  $('#updBar').classList.add('on');
+}
+function trackWorker(w){
+  if(!w)return;
+  if(w.state==='installed'&&navigator.serviceWorker.controller){showUpdate(w);return;}
+  w.addEventListener('statechange',()=>{
+    if(w.state==='installed'&&navigator.serviceWorker.controller)showUpdate(w);
+  });
+}
+$('#upd-btn').addEventListener('click',()=>{
+  if(!WAITING)return location.reload();
+  const b=$('#upd-btn');b.disabled=true;b.textContent='กำลังอัปเดต…';
+  WAITING.postMessage('SKIP_WAITING');
+  setTimeout(()=>location.reload(),2500);
+});
+
+async function showVersion(){
+  const el=$('#verNow');if(!el)return;
+  const c=navigator.serviceWorker&&navigator.serviceWorker.controller;
+  if(!c){el.textContent=supported?'ยังไม่ติดตั้ง':'เปิดจากไฟล์';return;}
+  try{
+    const v=await new Promise((res,rej)=>{
+      const ch=new MessageChannel();
+      ch.port1.onmessage=e=>res(e.data);
+      c.postMessage({type:'GET_VERSION'},[ch.port2]);
+      setTimeout(()=>rej(0),1500);
+    });
+    el.textContent=v||'—';
+  }catch(_){el.textContent='—';}
+}
+
+async function checkUpdate(manual){
+  if(!SWREG)return manual&&toast('ยังไม่ได้ติดตั้งแอพ');
+  if(CHECKING)return;
+  CHECKING=true;
+  const b=$('#chkBtn');if(manual&&b){b.disabled=true;b.textContent='กำลังตรวจ…';}
+  try{await SWREG.update();}catch(_){}
+  setTimeout(()=>{
+    CHECKING=false;
+    if(manual&&b){b.disabled=false;b.textContent='ตรวจหาอัปเดต';}
+    if(SWREG.waiting)showUpdate(SWREG.waiting);
+    else if(manual)toast('ใช้เวอร์ชันล่าสุดอยู่แล้ว');
+  },2200);
+}
+$('#chkBtn').addEventListener('click',()=>checkUpdate(true));
+
+if(supported){
   addEventListener('load',()=>{
     navigator.serviceWorker.register('sw.js').then(reg=>{
-      reg.addEventListener('updatefound',()=>{
-        const nw=reg.installing;if(!nw)return;
-        nw.addEventListener('statechange',()=>{
-          if(nw.state==='installed'&&navigator.serviceWorker.controller){
-            toast('มีเวอร์ชันใหม่ · แตะเพื่ออัปเดต');
-            $('#toast').onclick=()=>{nw.postMessage('SKIP_WAITING');};
-          }});
-      });
+      SWREG=reg;
+      if(reg.waiting&&navigator.serviceWorker.controller)showUpdate(reg.waiting);
+      trackWorker(reg.installing);
+      reg.addEventListener('updatefound',()=>trackWorker(reg.installing));
+      setInterval(()=>checkUpdate(false),30*60*1000);
+      showVersion();
     }).catch(e=>console.warn('SW ไม่ทำงาน:',e));
     let reloaded=false;
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
       if(reloaded)return;reloaded=true;location.reload();});
   });
-}
+  document.addEventListener('visibilitychange',()=>{
+    if(!document.hidden){checkUpdate(false);showVersion();}
+  });
+}else{const b=$('#chkBtn');if(b)b.style.display='none';showVersion();}
 
 /* ปุ่มติดตั้ง */
 (function(){

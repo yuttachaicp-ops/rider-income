@@ -1,6 +1,6 @@
 /* Service Worker — บันทึกรายรับ ไรเดอร์
    แก้ไฟล์แล้วเปลี่ยนเลข VERSION ทุกครั้ง เพื่อให้เครื่องผู้ใช้ดึงเวอร์ชันใหม่ */
-const VERSION = 'v1.1.0';
+const VERSION = 'v1.2.0';
 const CACHE = 'rider-income-' + VERSION;
 const ASSETS = [
   './',
@@ -28,7 +28,14 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('message', e => {
-  if (e.data === 'SKIP_WAITING') self.skipWaiting();
+  const d = e.data;
+  if (d === 'SKIP_WAITING' || (d && d.type === 'SKIP_WAITING')) {
+    self.skipWaiting();
+    return;
+  }
+  if (d && d.type === 'GET_VERSION' && e.ports && e.ports[0]) {
+    e.ports[0].postMessage(VERSION);
+  }
 });
 
 self.addEventListener('fetch', e => {
