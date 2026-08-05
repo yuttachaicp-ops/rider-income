@@ -582,7 +582,7 @@ function liveSum(){
 function setJobs(n){
   JOBS=Math.max(1,Math.min(30,Math.round(n)||1));
   $('#j-val').textContent=JOBS;
-  $('#j-quick button').forEach(b=>b.classList.toggle('on',+b.dataset.j===JOBS));
+  $$('#j-quick button').forEach(b=>b.classList.toggle('on',+b.dataset.j===JOBS));
   liveSum();
 }
 $('#j-dec').addEventListener('click',()=>setJobs(JOBS-1));
