@@ -153,6 +153,14 @@
   .update button{background:#fff;color:#0a5c2e;border:0;border-radius:11px;padding:11px 15px;
     font:inherit;font-size:13.5px;font-weight:700;cursor:pointer;white-space:nowrap;width:auto}
   .update button:disabled{opacity:.65}
+  .step{display:flex;align-items:center;gap:8px;background:var(--card2);
+    border:1px solid var(--line);border-radius:14px;padding:6px}
+  .step button{height:46px;border-radius:11px;border:1px solid var(--line);
+    background:var(--card);color:var(--ink);font:inherit;font-size:22px;font-weight:700;cursor:pointer;width:52px}
+  .step .v{flex:1;text-align:center;font-size:21px;font-weight:800;letter-spacing:-.5px}
+  .step .v u{font-size:12px;font-weight:500;color:var(--muted);text-decoration:none;margin-left:3px}
+  .batch{display:inline-block;background:var(--exp);color:#fff;font-size:10.5px;font-weight:700;
+    border-radius:6px;padding:1px 5px;margin-right:5px;vertical-align:1px}
   .verrow{display:flex;gap:10px;align-items:stretch}
   .verrow .mini{flex:1}
   .verrow button{flex:1;margin:0}
@@ -202,6 +210,17 @@
       <label class="f"><span>วันที่</span><input type="date" id="f-date"></label>
       <label class="f"><span>เวลา</span><input type="time" id="f-time"></label>
     </div>
+    <div class="f"><span>จำนวนงานในรอบนี้ (งานแบชใส่หลายตัวได้)</span>
+      <div class="step">
+        <button type="button" id="j-dec" aria-label="ลดจำนวนงาน">−</button>
+        <div class="v"><span id="j-val">1</span><u>งาน</u></div>
+        <button type="button" id="j-inc" aria-label="เพิ่มจำนวนงาน">+</button>
+      </div>
+      <div class="chips" id="j-quick" style="margin:8px 0 0">
+        <button data-j="1">1 งาน</button><button data-j="2">แบช 2</button>
+        <button data-j="3">แบช 3</button><button data-j="4">แบช 4</button>
+      </div>
+    </div>
     <label class="f"><span>ค่ารอบ (บาท)</span>
       <input type="number" id="f-fare" class="big" inputmode="decimal" step="0.01" min="0" placeholder="0"></label>
     <div class="row">
@@ -234,6 +253,7 @@
       <span><u style="background:var(--grab)"></u>Grab <b id="t-grab">0</b></span>
       <span><u style="background:var(--shopee)"></u>Shopee <b id="t-shopee">0</b></span>
       <span><u style="background:var(--dotDim)"></u>รอบ <b id="t-cnt">0</b></span>
+      <span><u style="background:var(--exp)"></u>งาน <b id="t-jobs">0</b></span>
     </div>
   </div>
 </section>
@@ -327,6 +347,7 @@
     <div class="card" style="margin:0"><div class="lbl" style="margin:0">สุทธิเดือนนี้</div><div class="kpi" style="font-size:24px" id="k-month">0</div></div>
     <div class="card" style="margin:0"><div class="lbl" style="margin:0">สุทธิ/ชม. เฉลี่ย</div><div class="kpi" style="font-size:24px" id="k-hr">0</div></div>
     <div class="card" style="margin:0"><div class="lbl" style="margin:0">เฉลี่ย/รอบ</div><div class="kpi" style="font-size:24px" id="k-avg">0</div></div>
+    <div class="card" style="margin:0"><div class="lbl" style="margin:0">เฉลี่ย/งาน</div><div class="kpi" style="font-size:24px" id="k-avgjob">0</div></div>
     <div class="card" style="margin:0"><div class="lbl" style="margin:0">รายจ่ายเดือนนี้</div><div class="kpi" style="font-size:24px" id="k-exp">0</div></div>
     <div class="card" style="margin:0"><div class="lbl" style="margin:0">ทิปเดือนนี้</div><div class="kpi" style="font-size:24px" id="k-tip">0</div></div>
     <div class="card" style="margin:0"><div class="lbl" style="margin:0">ชม. เดือนนี้</div><div class="kpi" style="font-size:24px" id="k-hrs">0</div></div>
@@ -335,7 +356,7 @@
   <div class="card light">
     <p class="lbl">สรุปรายวัน (30 วัน)</p>
     <div class="tw"><table id="tbl">
-      <thead><tr><th>วันที่</th><th>รอบ</th><th>รับ</th><th>จ่าย</th><th>ชม.</th><th>สุทธิ</th><th>/ชม.</th></tr></thead>
+      <thead><tr><th>วันที่</th><th>รอบ</th><th>งาน</th><th>รับ</th><th>จ่าย</th><th>ชม.</th><th>สุทธิ</th><th>/ชม.</th></tr></thead>
       <tbody></tbody></table></div>
   </div>
 
@@ -380,7 +401,10 @@
     <label class="f"><span>ทิป</span><input type="number" id="e-tip" step="0.01"></label>
     <label class="f"><span>โบนัส</span><input type="number" id="e-bonus" step="0.01"></label>
   </div>
-  <label class="f"><span>หมายเหตุ</span><input type="text" id="e-note"></label>
+  <div class="row">
+    <label class="f"><span>จำนวนงาน</span><input type="number" id="e-jobs" inputmode="numeric" step="1" min="1"></label>
+    <label class="f" style="flex:2"><span>หมายเหตุ</span><input type="text" id="e-note"></label>
+  </div>
   <button class="btn" id="e-save">บันทึกการแก้ไข</button>
   <div class="row" style="margin-top:8px">
     <button class="btn ghost" id="e-del">ลบรอบนี้</button>
@@ -436,6 +460,7 @@ const CATS=[
 ];
 const catOf=k=>CATS.find(c=>c.k===k)||CATS[5];
 const total=e=>num(e.fare)+num(e.tip)+num(e.bonus);
+const jobsOf=e=>{const n=Math.round(num(e.jobs));return n>=1?n:1;};
 const iso=d=>{const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate());};
 const hhmm=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
 const todayISO=()=>iso(new Date());
@@ -474,9 +499,9 @@ const DB={
 
 /* ================= pure logic (testable) ================= */
 function sumBy(entries){
-  const o={total:0,grab:0,shopee:0,tip:0,bonus:0,fare:0,count:entries.length};
+  const o={total:0,grab:0,shopee:0,tip:0,bonus:0,fare:0,count:entries.length,jobs:0};
   for(const e of entries){const t=total(e);o.total+=t;o[e.platform]=(o[e.platform]||0)+t;
-    o.tip+=num(e.tip);o.bonus+=num(e.bonus);o.fare+=num(e.fare);}
+    o.tip+=num(e.tip);o.bonus+=num(e.bonus);o.fare+=num(e.fare);o.jobs+=jobsOf(e);}
   return o;
 }
 function sumExp(list){
@@ -510,8 +535,8 @@ function mkShift(date,start,end){
 }
 function dayRows(entries,expenses,shifts,from,to,now){
   const days=new Map();
-  const touch=k=>{if(!days.has(k))days.set(k,{date:k,count:0,grab:0,shopee:0,gross:0,exp:0,hrs:0});return days.get(k);};
-  for(const e of inRange(entries,from,to)){const d=touch(e.date);d.count++;d[e.platform]+=total(e);d.gross+=total(e);}
+  const touch=k=>{if(!days.has(k))days.set(k,{date:k,count:0,jobs:0,grab:0,shopee:0,gross:0,exp:0,hrs:0});return days.get(k);};
+  for(const e of inRange(entries,from,to)){const d=touch(e.date);d.count++;d.jobs+=jobsOf(e);d[e.platform]+=total(e);d.gross+=total(e);}
   for(const x of inRange(expenses,from,to)){touch(x.date).exp+=num(x.amount);}
   for(const s of shifts){if(s.date>=from&&s.date<=to)touch(s.date).hrs+=shiftMs(s,now)/3600000;}
   return [...days.values()].map(d=>({...d,net:d.gross-d.exp,perHr:d.hrs>0?(d.gross-d.exp)/d.hrs:null}))
@@ -519,38 +544,50 @@ function dayRows(entries,expenses,shifts,from,to,now){
 }
 function goalPct(value,target){if(!(target>0))return 0;return Math.max(0,Math.min(100,value/target*100));}
 function toCSV(entries){
-  const head=['วันที่','เวลา','แพลตฟอร์ม','ค่ารอบ','ทิป','โบนัส','รวม','หมายเหตุ'];
+  const head=['วันที่','เวลา','แพลตฟอร์ม','จำนวนงาน','ค่ารอบ','ทิป','โบนัส','รวม','บาทต่องาน','หมายเหตุ'];
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const rows=[...entries].sort((a,b)=>(a.date+(a.time||'')).localeCompare(b.date+(b.time||'')))
-    .map(e=>[e.date,e.time||'',PL[e.platform]?PL[e.platform].name:e.platform,
+    .map(e=>[e.date,e.time||'',PL[e.platform]?PL[e.platform].name:e.platform,jobsOf(e),
              num(e.fare).toFixed(2),num(e.tip).toFixed(2),num(e.bonus).toFixed(2),
-             total(e).toFixed(2),e.note||''].map(q).join(','));
+             total(e).toFixed(2),(total(e)/jobsOf(e)).toFixed(2),e.note||''].map(q).join(','));
   return '﻿'+[head.map(q).join(','),...rows].join('\r\n');
 }
 function dailyCSV(rows){
-  const head=['วันที่','รอบ','GrabFood','ShopeeFood','รายรับ','รายจ่าย','ชั่วโมง','กำไรสุทธิ','สุทธิต่อชั่วโมง'];
+  const head=['วันที่','รอบ','จำนวนงาน','GrabFood','ShopeeFood','รายรับ','รายจ่าย','ชั่วโมง','กำไรสุทธิ','สุทธิต่อชั่วโมง'];
   const q=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
   const body=[...rows].sort((a,b)=>a.date.localeCompare(b.date)).map(d=>[
-    d.date,d.count,d.grab.toFixed(2),d.shopee.toFixed(2),d.gross.toFixed(2),
+    d.date,d.count,d.jobs,d.grab.toFixed(2),d.shopee.toFixed(2),d.gross.toFixed(2),
     d.exp.toFixed(2),d.hrs.toFixed(2),d.net.toFixed(2),d.perHr===null?'':d.perHr.toFixed(2)
   ].map(q).join(','));
   return '﻿'+[head.map(q).join(','),...body].join('\r\n');
 }
 if(typeof module!=='undefined'&&module.exports){module.exports={
-  sumBy,sumExp,byDay,inRange,weekStart,shiftMs,hoursIn,mkShift,dayRows,goalPct,toCSV,dailyCSV,total,iso,hText};}
+  sumBy,sumExp,byDay,inRange,weekStart,shiftMs,hoursIn,mkShift,dayRows,goalPct,toCSV,dailyCSV,total,jobsOf,iso,hText};}
 
 /* ================= state ================= */
 let ENTRIES=[],EXP=[],SHIFTS=[],SET={goalDay:1000,goalWeek:6000,basis:'net'};
-let PLAT='grab',CAT='fuel',RANGE='today',EDIT=null,EDITX=null,EDITS=null,tick=null;
+let PLAT='grab',CAT='fuel',RANGE='today',EDIT=null,EDITX=null,EDITS=null,tick=null,JOBS=1;
 const running=()=>SHIFTS.find(s=>!s.endTs);
 
 /* ================= ฟอร์มรายรับ ================= */
 function resetForm(keepDate){
   if(!keepDate){const n=new Date();$('#f-date').value=iso(n);$('#f-time').value=hhmm(n);}
   ['#f-fare','#f-tip','#f-bonus'].forEach(s=>$(s).value='');
-  $('#f-note').value='';liveSum();
+  $('#f-note').value='';setJobs(1);
 }
-function liveSum(){$('#f-sum').textContent=money(num($('#f-fare').value)+num($('#f-tip').value)+num($('#f-bonus').value))+' ฿';}
+function liveSum(){
+  const t=num($('#f-fare').value)+num($('#f-tip').value)+num($('#f-bonus').value);
+  $('#f-sum').textContent=money(t)+' ฿'+(JOBS>1?' · '+JOBS+' งาน ('+money(t/JOBS)+'/งาน)':'');
+}
+function setJobs(n){
+  JOBS=Math.max(1,Math.min(30,Math.round(n)||1));
+  $('#j-val').textContent=JOBS;
+  $('#j-quick button').forEach(b=>b.classList.toggle('on',+b.dataset.j===JOBS));
+  liveSum();
+}
+$('#j-dec').addEventListener('click',()=>setJobs(JOBS-1));
+$('#j-inc').addEventListener('click',()=>setJobs(JOBS+1));
+$('#j-quick').addEventListener('click',e=>{const b=e.target.closest('button[data-j]');if(b)setJobs(+b.dataset.j);});
 ['#f-fare','#f-tip','#f-bonus'].forEach(s=>$(s).addEventListener('input',liveSum));
 $('#plat').addEventListener('click',e=>{const b=e.target.closest('button[data-p]');if(!b)return;
   PLAT=b.dataset.p;$$('#plat button').forEach(x=>x.classList.toggle('on',x===b));});
@@ -558,8 +595,9 @@ $('#btn-save').addEventListener('click',async()=>{
   const fare=num($('#f-fare').value),tip=num($('#f-tip').value),bonus=num($('#f-bonus').value);
   if(fare+tip+bonus<=0){toast('ใส่จำนวนเงินก่อนนะ');$('#f-fare').focus();return;}
   await DB.put('entries',{platform:PLAT,date:$('#f-date').value||todayISO(),time:$('#f-time').value||'',
-    fare,tip,bonus,note:$('#f-note').value.trim(),created:Date.now()});
-  await load();resetForm(true);$('#f-fare').focus();toast('บันทึกแล้ว · '+money(fare+tip+bonus)+' ฿');
+    fare,tip,bonus,jobs:JOBS,note:$('#f-note').value.trim(),created:Date.now()});
+  const nj0=JOBS;await load();resetForm(true);$('#f-fare').focus();
+  toast('บันทึกแล้ว · '+money(fare+tip+bonus)+' ฿'+(nj0>1?' · '+nj0+' งาน':''));
 });
 $('#btn-reset').addEventListener('click',()=>resetForm());
 
@@ -650,12 +688,12 @@ function render(){
   $('#t-exp').textContent=money0(tx.total);
   $('#t-hr').textContent=thrs>0.02?money0(tnet/thrs):'–';
   $('#sh-today').textContent=hText(thrs);
-  $('#sh-rate').textContent=thrs>0.02?(td.count/thrs).toFixed(1)+' รอบ':'–';
+  $('#sh-rate').textContent=thrs>0.02?(td.jobs/thrs).toFixed(1)+' งาน':'–';
   paintGoal($('#goalDay'),$('#g-target'),$('#g-left'),SET.basis==='net'?tnet:td.total,SET.goalDay);
   const bs=$('#t-bar').children,tt=td.total||1;
   bs[0].style.width=(td.grab/tt*100)+'%';bs[1].style.width=(td.shopee/tt*100)+'%';
   $('#t-grab').textContent=money0(td.grab);$('#t-shopee').textContent=money0(td.shopee);
-  $('#t-cnt').textContent=td.count;
+  $('#t-cnt').textContent=td.count;$('#t-jobs').textContent=td.jobs;
   paintTimer();
 
   /* ---- รายจ่าย ---- */
@@ -695,7 +733,7 @@ function render(){
     (b.date+(b.time||'')+String(b.id)).localeCompare(a.date+(a.time||'')+String(a.id)));
   const ls=sumBy(list),lx=sumExp(inRange(EXP,from,to)),lh=hoursIn(SHIFTS,from,to);
   const names={today:'วันนี้','7':'7 วันล่าสุด',month:'เดือนนี้',all:'ทั้งหมด'};
-  $('#l-head').textContent=names[RANGE]+' · '+ls.count+' รอบ';
+  $('#l-head').textContent=names[RANGE]+' · '+ls.count+' รอบ · '+ls.jobs+' งาน';
   $('#l-total').innerHTML=money(ls.total)+' <small>฿</small>';
   $('#l-exp').textContent=money0(lx.total);
   $('#l-net').textContent=money0(ls.total-lx.total);
@@ -703,8 +741,11 @@ function render(){
   const box=$('#list');box.innerHTML=list.length?'':'<div class="empty">ยังไม่มีรายการในช่วงนี้</div>';
   for(const e of list){
     const d=document.createElement('div');d.className='item';
-    const extra=[];if(num(e.tip))extra.push('ทิป '+money0(e.tip));if(num(e.bonus))extra.push('โบนัส '+money0(e.bonus));
+    const nj=jobsOf(e);
+    const extra=[];if(nj>1)extra.push(money0(total(e)/nj)+'/งาน');
+    if(num(e.tip))extra.push('ทิป '+money0(e.tip));if(num(e.bonus))extra.push('โบนัส '+money0(e.bonus));
     d.innerHTML='<i class="dot" style="background:'+PL[e.platform].color+'"></i><div class="m"><b>'+
+      (nj>1?'<span class="batch">แบช '+nj+'</span>':'')+
       PL[e.platform].name+'</b><span>'+thDate(e.date)+(e.time?' '+e.time:'')+
       (extra.length?' · '+extra.join(' · '):'')+(e.note?' · '+e.note.replace(/</g,'&lt;'):'')+
       '</span></div><div class="v">'+money(total(e))+'</div>';
@@ -721,16 +762,17 @@ function render(){
   $('#k-month').textContent=money0(mo.total-mx.total);
   $('#k-hr').textContent=allH>0.02?money0((all.total-allX.total)/allH):'–';
   $('#k-avg').textContent=all.count?money0(all.total/all.count):'0';
+  $('#k-avgjob').textContent=all.jobs?money0(all.total/all.jobs):'0';
   $('#k-exp').textContent=money0(mx.total);
   $('#k-tip').textContent=money0(mo.tip);
   $('#k-hrs').textContent=mh.toFixed(1);
 
   const rows=dayRows(ENTRIES,EXP,SHIFTS,iso(addDays(now,-29)),T);
   const tb=$('#tbl tbody');tb.innerHTML='';
-  if(!rows.length)tb.innerHTML='<tr><td colspan="7" style="color:var(--muted);text-align:center;padding:18px">ไม่มีข้อมูล</td></tr>';
+  if(!rows.length)tb.innerHTML='<tr><td colspan="8" style="color:var(--muted);text-align:center;padding:18px">ไม่มีข้อมูล</td></tr>';
   for(const d of rows){
     const tr=document.createElement('tr');
-    tr.innerHTML='<td>'+thDate(d.date)+'</td><td>'+d.count+'</td><td>'+money0(d.gross)+'</td>'+
+    tr.innerHTML='<td>'+thDate(d.date)+'</td><td>'+d.count+'</td><td>'+d.jobs+'</td><td>'+money0(d.gross)+'</td>'+
       '<td>'+(d.exp?money0(d.exp):'–')+'</td><td>'+(d.hrs>0.02?d.hrs.toFixed(1):'–')+'</td>'+
       '<td class="'+(d.net<0?'neg':'')+'"><b>'+money0(d.net)+'</b></td>'+
       '<td>'+(d.perHr===null?'–':money0(d.perHr))+'</td>';
@@ -772,10 +814,11 @@ window.addEventListener('resize',()=>{if($('#s-sum').classList.contains('on'))dr
 function openEdit(e){EDIT=e;
   $('#dlg-info').textContent=PL[e.platform].name+' · '+thDate(e.date)+(e.time?' '+e.time:'');
   $('#e-fare').value=num(e.fare);$('#e-tip').value=num(e.tip);$('#e-bonus').value=num(e.bonus);
-  $('#e-note').value=e.note||'';$('#dlg').showModal();}
+  $('#e-jobs').value=jobsOf(e);$('#e-note').value=e.note||'';$('#dlg').showModal();}
 $('#e-save').addEventListener('click',async()=>{
   EDIT.fare=num($('#e-fare').value);EDIT.tip=num($('#e-tip').value);
   EDIT.bonus=num($('#e-bonus').value);EDIT.note=$('#e-note').value.trim();
+  EDIT.jobs=Math.max(1,Math.round(num($('#e-jobs').value))||1);
   await DB.put('entries',EDIT);$('#dlg').close();await load();toast('แก้ไขแล้ว');});
 $('#e-del').addEventListener('click',async()=>{if(!confirm('ลบรอบนี้?'))return;
   await DB.del('entries',EDIT.id);$('#dlg').close();await load();toast('ลบแล้ว');});
